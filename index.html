@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TicTac Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ========== SETUP MODAL ========== -->
+  <div id="setupModal" class="modal-overlay active">
+    <div class="modal-card">
+      <div class="modal-logo">
+        <span class="logo-x">X</span>
+        <span class="logo-sep">·</span>
+        <span class="logo-o">O</span>
+      </div>
+      <h1 class="modal-title">TicTac <span class="accent">Pro</span></h1>
+      <p class="modal-sub">Configure your match</p>
+
+      <!-- Game Mode -->
+      <div class="setup-section">
+        <label class="setup-label">Game Mode</label>
+        <div class="toggle-group" id="modeGroup">
+          <button class="toggle-btn active" data-value="pvp">👥 vs Player</button>
+          <button class="toggle-btn" data-value="pva">🤖 vs AI</button>
+        </div>
+      </div>
+
+      <!-- AI Difficulty (hidden in PvP) -->
+      <div class="setup-section" id="difficultySection">
+        <label class="setup-label">AI Difficulty</label>
+        <div class="toggle-group" id="difficultyGroup">
+          <button class="toggle-btn active" data-value="easy">Easy</button>
+          <button class="toggle-btn" data-value="medium">Medium</button>
+          <button class="toggle-btn" data-value="hard">Hard</button>
+        </div>
+      </div>
+
+      <!-- Symbol Choice -->
+      <div class="setup-section">
+        <label class="setup-label">You play as</label>
+        <div class="toggle-group" id="symbolGroup">
+          <button class="toggle-btn symbol-btn active" data-value="X">✕ X</button>
+          <button class="toggle-btn symbol-btn" data-value="O">○ O</button>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="startBtn">Start Match</button>
+    </div>
+  </div>
+
+  <!-- ========== RESULT MODAL ========== -->
+  <div id="resultModal" class="modal-overlay">
+    <div class="modal-card result-card">
+      <div id="resultEmoji" class="result-emoji">🏆</div>
+      <h2 id="resultTitle" class="result-title">Player X Wins!</h2>
+      <p id="resultSub" class="result-sub">Diagonal combo</p>
+      <div class="result-actions">
+        <button class="btn-primary" id="rematchBtn">Rematch</button>
+        <button class="btn-ghost" id="newMatchBtn">New Match</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MAIN GAME UI ========== -->
+  <div id="gameUI" class="game-wrapper hidden">
+
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="brand">
+        <span class="logo-x">X</span><span class="logo-sep">·</span><span class="logo-o">O</span>
+        <span class="brand-name">TicTac Pro</span>
+      </div>
+      <div class="top-controls">
+        <button class="icon-btn" id="soundBtn" title="Toggle Sound">🔊</button>
+        <button class="icon-btn" id="themeBtn" title="Toggle Theme">🌙</button>
+        <button class="icon-btn" id="menuBtn" title="New Match">⚙️</button>
+      </div>
+    </header>
+
+    <!-- Main Layout -->
+    <main class="main-layout">
+
+      <!-- Left Panel: Scoreboard + History -->
+      <aside class="left-panel">
+        <!-- Scoreboard -->
+        <div class="glass-card scoreboard">
+          <h3 class="panel-title">Scoreboard</h3>
+          <div class="score-grid">
+            <div class="score-item score-x">
+              <span class="score-symbol">✕</span>
+              <span class="score-name" id="scoreNameX">Player X</span>
+              <span class="score-val" id="scoreX">0</span>
+            </div>
+            <div class="score-item score-draw">
+              <span class="score-symbol">—</span>
+              <span class="score-name">Draws</span>
+              <span class="score-val" id="scoreD">0</span>
+            </div>
+            <div class="score-item score-o">
+              <span class="score-symbol">○</span>
+              <span class="score-name" id="scoreNameO">Player O</span>
+              <span class="score-val" id="scoreO">0</span>
+            </div>
+          </div>
+          <button class="btn-ghost btn-sm" id="resetScoreBtn">Reset scores</button>
+        </div>
+
+        <!-- Move History -->
+        <div class="glass-card history-panel">
+          <h3 class="panel-title">Move History</h3>
+          <ul class="history-list" id="historyList">
+            <li class="history-empty">No moves yet</li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Center: Board -->
+      <section class="board-section">
+        <!-- Status -->
+        <div class="status-bar">
+          <div class="turn-indicator" id="turnIndicator">
+            <span class="turn-symbol" id="turnSymbol">✕</span>
+            <span class="turn-text" id="turnText">Player X's turn</span>
+          </div>
+          <!-- AI Thinking Indicator -->
+          <div class="ai-thinking hidden" id="aiThinking">
+            <span class="thinking-dots"><span></span><span></span><span></span></span>
+            <span>AI thinking…</span>
+          </div>
+        </div>
+
+        <!-- The Board -->
+        <div class="board" id="board">
+          <div class="cell" data-index="0"></div>
+          <div class="cell" data-index="1"></div>
+          <div class="cell" data-index="2"></div>
+          <div class="cell" data-index="3"></div>
+          <div class="cell" data-index="4"></div>
+          <div class="cell" data-index="5"></div>
+          <div class="cell" data-index="6"></div>
+          <div class="cell" data-index="7"></div>
+          <div class="cell" data-index="8"></div>
+        </div>
+
+        <!-- Board Actions -->
+        <div class="board-actions">
+          <button class="btn-ghost" id="restartBtn">↺ Restart</button>
+          <button class="btn-primary btn-sm" id="newMatchBtn2">New Match</button>
+        </div>
+      </section>
+
+      <!-- Right Panel: Game Info -->
+      <aside class="right-panel">
+        <div class="glass-card game-info">
+          <h3 class="panel-title">Match Info</h3>
+          <div class="info-row"><span class="info-label">Mode</span><span class="info-val" id="infoMode">PvP</span></div>
+          <div class="info-row"><span class="info-label">Difficulty</span><span class="info-val" id="infoDiff">—</span></div>
+          <div class="info-row"><span class="info-label">Round</span><span class="info-val" id="infoRound">1</span></div>
+          <div class="info-row"><span class="info-label">Moves</span><span class="info-val" id="infoMoves">0</span></div>
+        </div>
+
+        <div class="glass-card legend-card">
+          <h3 class="panel-title">How AI Works</h3>
+          <div class="legend-item"><span class="diff-badge easy">Easy</span><p>Plays completely random moves.</p></div>
+          <div class="legend-item"><span class="diff-badge medium">Medium</span><p>Blocks wins & takes obvious moves, else random.</p></div>
+          <div class="legend-item"><span class="diff-badge hard">Hard</span><p>Minimax algorithm — optimal play, unbeatable.</p></div>
+        </div>
+      </aside>
+
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
